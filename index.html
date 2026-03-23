@@ -39,12 +39,6 @@
       pointer-events: none;
     }
 
-    /* Soft animated glow orbs removed to keep clean background focus, 
-       but keep a subtle floating effect to blend with image */
-    .orb {
-      display: none;
-    }
-
     .container {
       position: relative;
       z-index: 2;
@@ -370,7 +364,6 @@
   </style>
 </head>
 <body>
-  <!-- decorative orbs removed to prioritize image background -->
   <div class="container">
     <div class="brand">
       <div class="logo">
@@ -403,10 +396,10 @@
 <br/>✅ Crypto & Commodity Updates
       </p>
       <div class="cta-group">
-        <button class="btn-telegram" id="joinTelegramBtn">
+        <button class="btn-telegram" id="joinTelegramBtn1">
           <i class="fab fa-telegram"></i> Join Telegram Channel
         </button>
-        <button class="btn-outline" id="copyLinkBtn" style="display: none;">
+        <button class="btn-outline" id="copyLinkBtn" style="display: none">
           <i class="fas fa-link"></i> Copy Channel Link
         </button>
       </div>
@@ -474,11 +467,11 @@
       // YOUR TELEGRAM CHANNEL INVITE LINK (replace if needed)
       const TELEGRAM_LINK = "https://t.me/+jgwE3b-vYOc5NmFl";
       
-      // Dynamic Data Simulation
-      let baseMembers = ;
+      // FIXED: Initialize baseMembers with a valid number (starting member count)
+      let baseMembers = 785995;   // Starting member count (matches the initial display)
       const growthRatePerSecond = 0.0018;
       let lastTimestamp = Date.now();
-      let postsCount = 12;
+      let postsCount = 279;       // matches initial signals count
       
       // DOM elements
       const memberCountNumSpan = document.getElementById('memberCountNum');
@@ -486,6 +479,7 @@
       const onlineCountSpan = document.getElementById('onlineCount');
       const postsTodaySpan = document.getElementById('postsToday');
       const joinBtn = document.getElementById('joinTelegramBtn');
+      const joinBtn1 = document.getElementById('joinTelegramBtn1');
       const copyBtn = document.getElementById('copyLinkBtn');
       const toastEl = document.getElementById('toastMsg');
       const toastTextSpan = document.getElementById('toastText');
@@ -532,23 +526,37 @@
           let newVal = currentVal + Math.floor(Math.random() * 2) + 1;
           updateMemberDisplay(newVal);
           baseMembers = newVal;
+        } else {
+          // fallback
+          let newVal = Math.floor(baseMembers) + 1;
+          updateMemberDisplay(newVal);
+          baseMembers = newVal;
         }
       }
       
       function updateMemberDisplay(newMemberCount) {
-        let formatted = newMemberCount.toLocaleString();
+        let intMembers = Math.floor(newMemberCount);
+        let formatted = intMembers.toLocaleString();
         memberCountNumSpan.innerText = formatted;
         if (memberCountDisplaySpan) memberCountDisplaySpan.innerText = formatted;
+        // calculate online count based on a dynamic percentage (between 12% and 28%)
         let onlinePercent = 0.18 + (Math.sin(Date.now() / 3600000) * 0.05);
-        let onlineVal = Math.floor(newMemberCount * Math.max(0.12, Math.min(0.28, onlinePercent)));
+        let onlineVal = Math.floor(intMembers * Math.max(0.12, Math.min(0.28, onlinePercent)));
         onlineCountSpan.innerText = onlineVal.toLocaleString();
       }
       
       function updatePostsRandomly() {
-        let increment = Math.floor(Math.random() * 2);
-        postsCount += increment;
-        if (postsCount > 45) postsCount = 18;
-        postsTodaySpan.innerText = postsCount.toLocaleString();
+        let increment = Math.floor(Math.random() * 3); // 0-2
+        if (increment > 0) {
+          postsCount += increment;
+          if (postsCount > 420) postsCount = 180;
+          postsTodaySpan.innerText = postsCount.toLocaleString();
+          // add visual pop animation
+          if(postsTodaySpan) {
+            postsTodaySpan.classList.add('dynamic-number');
+            setTimeout(() => postsTodaySpan.classList.remove('dynamic-number'), 400);
+          }
+        }
       }
       
       function updateMemberGrowth() {
@@ -557,10 +565,13 @@
         lastTimestamp = now;
         let growth = growthRatePerSecond * deltaSeconds;
         let newMemberValue = baseMembers + growth;
-        if (newMemberValue > 3200) newMemberValue = 1842 + (Math.sin(Date.now() / 86400000) * 200);
+        // Keep numbers within realistic but still vibrant range (no sudden drops)
+        if (newMemberValue > 810000) newMemberValue = 785000 + (Math.sin(Date.now() / 86400000) * 12000);
+        if (newMemberValue < 770000) newMemberValue = 785000;
         baseMembers = newMemberValue;
         let intMembers = Math.floor(baseMembers);
         updateMemberDisplay(intMembers);
+        // occasionally update posts count for liveliness
         if (Math.random() < 0.35) updatePostsRandomly();
       }
       
@@ -570,7 +581,9 @@
         '<i class="fas fa-chart-line"></i> F&O Strategy: Iron Condor on Nifty for this week — check channel! <i class="fas fa-fire"></i>',
         '<i class="fas fa-users"></i> SEBI Registered: Daily pre-market analysis at 8:45 AM <i class="fas fa-calendar-alt"></i>',
         '<i class="fab fa-telegram-plane"></i> Live Q&A session today at 4 PM — get your charts reviewed!',
-        '<i class="fas fa-brain"></i> New: Relative Strength scanning report posted in the channel'
+        '<i class="fas fa-brain"></i> New: Relative Strength scanning report posted in the channel',
+        '<i class="fas fa-chart-simple"></i> 📈 Bank Nifty option chain analysis just dropped! Join now.',
+        '<i class="fas fa-bullhorn"></i> Weekend special: Learn price action strategies inside Telegram!'
       ];
       
       let tickerIndex = 0;
@@ -578,23 +591,26 @@
         const tickerDiv = document.getElementById('tickerText');
         if (tickerDiv) {
           tickerIndex = (tickerIndex + 1) % tickerMessages.length;
-          tickerDiv.innerHTML = tickerMessages[tickerIndex] + ' <i class="fas fa-chart-line"></i> ' + tickerMessages[(tickerIndex+2)%tickerMessages.length];
+          // show two messages concatenated for variety
+          let nextMsg = tickerMessages[tickerIndex];
+          let extraMsg = tickerMessages[(tickerIndex + 3) % tickerMessages.length];
+          tickerDiv.innerHTML = nextMsg + ' <i class="fas fa-chart-line"></i> ' + extraMsg;
         }
       }
       
-      function startDynamicUpdates() {
-        setInterval(() => { updateMemberGrowth(); }, 4800);
-        setInterval(() => { updatePostsRandomly(); }, 9200);
-        setInterval(() => { rotateTickerMessage(); }, 8500);
-        setInterval(() => {
-          if (memberCountNumSpan) {
-            let curMembers = parseInt(memberCountNumSpan.innerText.replace(/,/g,''),10);
-            if (!isNaN(curMembers)) {
-              let dynamicOnline = Math.floor(curMembers * (0.14 + Math.random() * 0.1));
-              onlineCountSpan.innerText = dynamicOnline.toLocaleString();
+      // Function to ensure online count updates dynamically without interfering
+      function updateOnlineCountPeriodically() {
+        if (memberCountNumSpan) {
+          let curMembers = parseInt(memberCountNumSpan.innerText.replace(/,/g,''),10);
+          if (!isNaN(curMembers)) {
+            let dynamicOnline = Math.floor(curMembers * (0.14 + Math.random() * 0.1));
+            onlineCountSpan.innerText = dynamicOnline.toLocaleString();
+            if(onlineCountSpan) {
+              onlineCountSpan.classList.add('dynamic-number');
+              setTimeout(() => onlineCountSpan.classList.remove('dynamic-number'), 300);
             }
           }
-        }, 14000);
+        }
       }
       
       function animateNumberChange(element) {
@@ -604,30 +620,61 @@
         }
       }
       
+      // Override updateMemberDisplay to include animation
+      const originalUpdateMemberDisplay = updateMemberDisplay;
+      window.updateMemberDisplay = function(newMemberCount) {
+        originalUpdateMemberDisplay(newMemberCount);
+        animateNumberChange(memberCountNumSpan);
+        if(memberCountDisplaySpan) animateNumberChange(memberCountDisplaySpan);
+      };
+      
       function init() {
+        // Ensure all initial numbers are set correctly
         let initMembers = Math.floor(baseMembers);
         updateMemberDisplay(initMembers);
         onlineCountSpan.innerText = Math.floor(initMembers * 0.18).toLocaleString();
         postsTodaySpan.innerText = postsCount.toLocaleString();
         
-        // Attach event listeners directly
-        if (joinBtn) joinBtn.addEventListener('click', joinTelegram);
-        if (copyBtn) copyBtn.addEventListener('click', copyChannelLink);
+        // Attach event listeners directly - CRITICAL FIX: Ensure buttons are not null
+        if (joinBtn) {
+          joinBtn.addEventListener('click', joinTelegram);
+          console.log("Join button 1 attached");
+        } else {
+          console.warn("joinTelegramBtn not found");
+        }
         
-        startDynamicUpdates();
+        if (joinBtn1) {
+          joinBtn1.addEventListener('click', joinTelegram);
+          console.log("Join button 2 attached");
+        } else {
+          console.warn("joinTelegramBtn1 not found");
+        }
         
-        // Override update function with animation
-        window.updateMemberDisplay = function(newMemberCount) {
-          updateMemberDisplay(newMemberCount);
-          animateNumberChange(memberCountNumSpan);
-          if(memberCountDisplaySpan) animateNumberChange(memberCountDisplaySpan);
-        };
+        if (copyBtn) {
+          copyBtn.addEventListener('click', copyChannelLink);
+          console.log("Copy button attached");
+        } else {
+          console.warn("copyLinkBtn not found");
+        }
         
-        showToast("📈 Welcome! Join SEBI registered trading signals channel.", false);
+        // Start dynamic background updates
+        setInterval(() => { updateMemberGrowth(); }, 4800);
+        setInterval(() => { updatePostsRandomly(); }, 9200);
+        setInterval(() => { rotateTickerMessage(); }, 8500);
+        setInterval(() => { updateOnlineCountPeriodically(); }, 14000);
+        
+        // Small welcome toast after page load
+        setTimeout(() => {
+          showToast("📈 Welcome to LIVELONG HARI! Join SEBI registered trading signals channel.", false);
+        }, 800);
       }
       
-      // Start everything when page loads
-      init();
+      // Start everything when page fully loads
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     })();
   </script>
 </body>
